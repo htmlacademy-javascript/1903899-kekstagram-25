@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм»
 
 * Студент: [Евгений Макаров](https://up.htmlacademy.ru/javascript/25/user/1903899).
-* Наставник: [Генадий Максимов](https://htmlacademy.ru/profile/gennadiy).
+* Наставник: [Геннадий Максимов](https://htmlacademy.ru/profile/gennadiy).
 
 ---
 
