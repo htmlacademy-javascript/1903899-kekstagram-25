@@ -2,13 +2,13 @@
 function randomInteger(min, max) {
   let rand = min + Math.random() * (max + 1 - min);
   return Math.floor(rand);
-}
+};
 console.log(randomInteger(1, 3));
 
-function getStringLength(сheckinStr,maxLength) {
-  if (length <= maxLength)
-  return true
-  else(length >= maxLength)
-  return false
-  };
-  console.log(getStringLength(1,9))
+function stringLength(сheckinString,maxLength) {
+  if (length <= maxLength) {
+  return false;
+  }
+  return true;
+}
+  console.log(stringLength(1,9));
