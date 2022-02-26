@@ -1,14 +1,9 @@
-//источник https://learn.javascript.ru/task/random-int-min-max
-function randomInteger(min, max) {
+const getRandomInteger = (min = 0, max) => {
   const rand = min + Math.random() * (max + 1 - min);
-  return Math.floor(rand);
-}
-randomInteger(1,3);
 
-function checkStringLength(сheckinString,maxLength) {
-  if (length <= maxLength) {
-    return false;
-  }
-  return true;
-}
-checkStringLength(2,9);
+  return Math.floor(rand);
+};
+getRandomInteger(3);
+
+const checkStringLength = (string, maxLength) => string.length <= maxLength;
+checkStringLength('hello', 4);
