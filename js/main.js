@@ -60,5 +60,3 @@ const createPhotoDescription = (index) => ({
 const photosDescriptions = Array.from({
   length: PHOTOS_COUNT
 }, (item, index) => createPhotoDescription(index + 1));
-
-console.log(photosDescriptions);
