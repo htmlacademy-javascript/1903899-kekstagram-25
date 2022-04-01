@@ -1,5 +1,5 @@
 const PHOTOS_COUNT = 25;
-const COMMENTS_COUNT = 4;
+const COMMENTS_COUNT = 5;
 
 const COMMENT_MESSAGES = [
   'Всё отлично!',
@@ -30,7 +30,7 @@ const LikesCount = {
   MAX: 200,
 };
 
-const getRandomPositiveInteger = (a = 0, b) => {
+const getRandomPositiveInteger = (a, b) => {
   const lower = Math.ceil(Math.min(Math.abs(a), Math.abs(b)));
   const upper = Math.floor(Math.max(Math.abs(a), Math.abs(b)));
   const result = Math.random() * (upper - lower + 1) + lower;
@@ -41,23 +41,24 @@ const getRandomPositiveInteger = (a = 0, b) => {
 const getRandomArrayElement = (elements) => elements[getRandomPositiveInteger(0, elements.length - 1)];
 
 const createComment = (index) => ({
-  id:  `comment-${index}`,
+  id: `comment-${index}`,
   avatar: `img/avatar-${getRandomPositiveInteger(1, 6)}.svg`,
   message: getRandomArrayElement(COMMENT_MESSAGES),
   name: getRandomArrayElement(NAMES),
 });
 
 const createPhotoDescription = (index) => ({
-  id: index + 1,
+  id: index,
   url: `photos/${index}.jpg`,
   description: getRandomArrayElement(DESCRIPTIONS),
   likes: getRandomPositiveInteger(LikesCount.MIN, LikesCount.MAX),
-  comments: getRandomArrayElement(COMMENT_MESSAGES),
+  comments: Array.from({
+    length: COMMENTS_COUNT
+  }, (item, index) => createComment(index + 1)),
 });
 
-const photoDescriptions = Array.from({length: PHOTOS_COUNT}, (item, index) => createPhotoDescription(index + 1));
+const photosDescriptions = Array.from({
+  length: PHOTOS_COUNT
+}, (item, index) => createPhotoDescription(index + 1));
 
-const comment = Array.from({length: COMMENTS_COUNT}, (item, index) => createComment(index + 1));
-
-photoDescriptions();
-comment();
+console.log(photosDescriptions);
