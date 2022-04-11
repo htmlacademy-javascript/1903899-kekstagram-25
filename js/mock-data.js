@@ -22,9 +22,4 @@ const DESCRIPTIONS = [
   'Круто провел время!',
 ];
 
-const LikesCount = {
-  MIN: 15,
-  MAX: 200,
-};
-
-export {COMMENT_MESSAGES, NAMES, DESCRIPTIONS, LikesCount};
+export {COMMENT_MESSAGES, NAMES, DESCRIPTIONS, };
