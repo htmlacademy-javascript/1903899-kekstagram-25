@@ -56,7 +56,7 @@ const setupComments = () => {
       socialCommentCountElement.textContent = `${socialCommentElement.length} из ${socialCommentElement.length} комментария`;
     }
   }
-}
+};
 
 const addThumbnailClickHandler = function (thumbnail, similarPhotos) {
   thumbnail.addEventListener('click', () => {
