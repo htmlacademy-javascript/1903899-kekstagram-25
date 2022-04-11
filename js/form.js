@@ -1,212 +1,203 @@
-import {showAlertSuccess, showAlertError } from './util.js';
+import {body} from './big-picture';
+import {isEscapeKey} from './util.js';
+import './use-effects';
+import {sendData} from './api.js';
 
-const imgUploadOverlayElement = document.querySelector('.img-upload__overlay');
-const uploadFileElement = document.querySelector('#upload-file');
-const imgUploadCancelElement = document.querySelector('.img-upload__cancel');
+
+const inputElement = document.querySelector('#upload-file');
+const picrurePreviev = document.querySelector('.img-upload__preview img');
+const imageEditingForm = document.querySelector('.img-upload__overlay');
+const closeButtonForm = document.querySelector('.img-upload__cancel');
 const form = document.querySelector('.img-upload__form');
-const textDescriptionElement = document.querySelector('.text__description');
-const textHashtagsElement = document.querySelector('.text__hashtags');
-const bodyElement = document.querySelector('body');
-const re = /^#[A-Za-zА-Яа-яЁё0-9]{1,100}$/;
+const hashtagsText = form.querySelector('.text__hashtags');
+const descriptionText = form.querySelector('.text__description');
+const scaleControlSmaller = document.querySelector('.scale__control--smaller');
+const scaleControlBigger = document.querySelector('.scale__control--bigger');
+const scaleControlValue = document.querySelector('.scale__control--value');
+const submitButton = document.querySelector('.img-upload__submit');
+const InputOriginalEffect = document.querySelector('#effect-none');
+const effectSlider = document.querySelector('.effect-level__slider');
 
-const scaleControlSmallerElement = document.querySelector('.scale__control--smaller');
-const scaleControlBiggerEleent = document.querySelector('.scale__control--bigger');
-const scaleControlValueElement = document.querySelector('.scale__control--value');
-const imgUploadPreviewElement = document.querySelector('#img-upload__preview');
+const onFormEscKeydown = (evt) => {
+  if (isEscapeKey(evt) && evt.target === inputElement) {
+    evt.preventDefault();
+    imageEditingForm.classList.add('hidden');
+    body.classList.remove('modal-open');
+  }
+};
+const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 
-const errorElement = document.querySelector('#error').content.querySelector('.error');
-const successElement = document.querySelector('#success').content.querySelector('.success');
-const successButtonElement = document.querySelector('#success').content.querySelector('.success__button');
-const errorButtonElement = document.querySelector('#error').content.querySelector('.error__button');
-const errorInnerElement = document.querySelector('#error').content.querySelector('.error__inner');
-const successInnerElement = document.querySelector('#success').content.querySelector('.success__inner');
+inputElement.addEventListener('change', () => {
+  const file = inputElement.files[0];
+  const fileName = file.name.toLowerCase();
 
-uploadFileElement.addEventListener('click', () => {
-  imgUploadOverlayElement.classList.remove('hidden');
-  bodyElement.classList.add('modal-open');
+  const matches = FILE_TYPES.some((it) => fileName.endsWith(it));
+
+  if (matches) {
+    picrurePreviev.src = URL.createObjectURL(file);
+  }
+
 });
 
-const countScale = () => {
-  let fieldValue = parseFloat(scaleControlValueElement.value);
-  imgUploadPreviewElement.classList.add('scale');
+const scaleState = {
+  step: 25,
+  maxValue: 100,
+  mainValue: 25,
+  defaultValue: 100,
+};
 
-  scaleControlSmallerElement.addEventListener('click', () => {
-    if (fieldValue > 25) {
-      fieldValue -= 25;
-      imgUploadPreviewElement.style.transform = `scale(${fieldValue / 100})`;
-      scaleControlValueElement.value = `${fieldValue}%`;
-    }
+const changesScaleMin = function () {
+  if (parseInt(scaleControlValue.value, 10) > scaleState.mainValue) {
+    scaleControlValue.value = `${parseInt(scaleControlValue.value, 10) - scaleState.step} %`;
+    picrurePreviev.style.transform = `scale(${parseInt(scaleControlValue.value, 10)/100})`;
+  }
+};
+
+const changesScaleMax = function () {
+  if (parseInt(scaleControlValue.value, 10) < scaleState.maxValue) {
+    scaleControlValue.value = `${parseInt(scaleControlValue.value, 10) + scaleState.step} %`;
+    picrurePreviev.style.transform = `scale(${parseInt(scaleControlValue.value, 10)/100})`;
+  }
+};
+
+const openUserForm = function () {
+  imageEditingForm.classList.remove('hidden');
+  body.classList.add('modal-open');
+  scaleControlValue.value =`${scaleState.defaultValue} %`;
+
+  document.addEventListener('keydown', onFormEscKeydown);
+  scaleControlSmaller.addEventListener('click', changesScaleMin);
+  scaleControlBigger.addEventListener('click', changesScaleMax);
+};
+
+inputElement.addEventListener('change', openUserForm);
+
+const closeUserForm = function () {
+  imageEditingForm.classList.add('hidden');
+  body.classList.remove('modal-open');
+  picrurePreviev.className = 'effects__preview--none';
+  picrurePreviev.style.filter = 'none';
+  inputElement.value = null;
+  InputOriginalEffect.checked = 'checked';
+  effectSlider.setAttribute('disabled', true);
+  effectSlider.noUiSlider.updateOptions({
+    range: {
+      min: 0,
+      max: 100,
+    },
+    start: 100,
+    step: 1,
+    connect: 'lower',
   });
+  picrurePreviev.style.transform = 'scale(1)';
+  hashtagsText.value = '';
+  descriptionText.value = '';
 
-  scaleControlBiggerEleent.addEventListener('click', () => {
-    if (fieldValue < 100) {
-      fieldValue += 25;
-      imgUploadPreviewElement.style.transform = `scale(${fieldValue / 100})`;
-      scaleControlValueElement.value = `${fieldValue}%`;
+  document.removeEventListener('keydown', onFormEscKeydown);
+  scaleControlSmaller.removeEventListener('click', changesScaleMin);
+  scaleControlBigger.removeEventListener('click', changesScaleMax);
+};
+
+closeButtonForm.addEventListener('click', closeUserForm);
+closeButtonForm.addEventListener('click', closeUserForm);
+
+const pristine = new Pristine(form, {
+  classTo: 'text__label',
+  errorTextParent: 'text__label',
+  errorTextClass: 'text__label--error-text',
+});
+const blockSubmitButton = () => {
+  submitButton.disabled = true;
+  submitButton.textContent = 'Публикую...';
+};
+
+const unblockSubmitButton = () => {
+  submitButton.disabled = false;
+  submitButton.textContent = 'Опубликовать';
+};
+
+const setUserFormSubmit = (onSuccess) => {
+  form.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    const isValid = pristine.validate();
+    if (isValid) {
+      blockSubmitButton();
+      sendData(
+        () => {
+          onSuccess();
+          unblockSubmitButton();
+        },
+        () => {
+          unblockSubmitButton();
+          closeUserForm();
+        },
+        new FormData(evt.target),
+      );
     }
   });
 };
 
-countScale();
+setUserFormSubmit(closeUserForm);
 
-imgUploadCancelElement.addEventListener('click', () => {
-  imgUploadOverlayElement.classList.add('hidden');
-  bodyElement.classList.remove('modal-open');
-  form.reset();
-});
-
-document.addEventListener('keydown', (evt) => {
-  if (textDescriptionElement === document.activeElement || textHashtagsElement === document.activeElement) {
-    return evt;
-  } else {
-    if (evt.key === 'Escape') {
-      imgUploadOverlayElement.classList.add('hidden');
-      bodyElement.classList.remove('modal-open');
-      form.reset();
-    }
-  }
-});
-
-const closeErrorClickButton = () => errorButtonElement.addEventListener('click', () => {
-  errorElement.classList.add('hidden');
-});
-
-const closeErrorClickBody = () => document.addEventListener('click', (evt) => {
-  if (!errorInnerElement.contains(evt.target)){
-    errorElement.classList.add('hidden');
-  }
-});
-
-document.addEventListener('keydown', (evt) => {
-  if(evt.key === 'Escape') {
-    errorElement.classList.add('hidden');
-  }
-});
-
-const closeSuccessClickButton = () => successButtonElement.addEventListener('click', () => {
-  successElement.classList.add('hidden');
-});
-
-const closeSuccessClickBody = () => document.addEventListener('click', (evt) => {
-  if (!successInnerElement.contains(evt.target)){
-    successElement.classList.add('hidden');
-  }
-});
-
-document.addEventListener('keydown', (evt) => {
-  if(evt.key === 'Escape') {
-    successElement.classList.add('hidden');
-  }
-});
-
-const pristine = new Pristine(form, {
-  classTo: 'img-upload__text',
-  errorClass: 'img-upload__text--invalid',
-  successClass: 'img-upload__text--valid',
-  errorTextParent: 'img-upload__text',
-  errorTextTag: 'p',
-  errorTextClass: 'img-upload-error'
-});
-
-pristine.addValidator(textHashtagsElement, () => {
-  const arrayHashtags = textHashtagsElement.value.split(' ');
-  for (const hashtag of arrayHashtags) {
-    if (!re.test(hashtag) && hashtag !== '') {
+pristine.addValidator(hashtagsText, (value) => {
+  const result = value.split(' ').reduce((acc, hashtag) => {
+    if (acc === false) {
       return false;
     }
-  }
-  return true;
-}, 'Строка после решётки должна состоять из букв и чисел');
+    if (hashtag.startsWith('#')) {
+      return true;
+    }
+    return false;
+  }, true);
+  return result;
+}, 'Хэш-тег начинается с символа # (решётка)', 2, false);
 
-pristine.addValidator(textHashtagsElement, () => {
-  const arrayHashtags = textHashtagsElement.value.split(' ');
-  for (const hashtag of arrayHashtags) {
-    if (hashtag[0] !== '#' && hashtag.length !== 0) {
+pristine.addValidator(hashtagsText, (value) => {
+  const re = /^[#A-Za-zА-Яа-яЁё0-9 ]{1,}$/;
+  const result = re.test(value);
+  return result;
+}, 'Строка после решётки должна состоять из букв и чисел', 2, false);
+
+pristine.addValidator(hashtagsText, (value) => {
+  const result = value.split(' ').reduce((acc, hashtag) => {
+    if (acc === false) {
       return false;
     }
-  }
-  return true;
-}, 'Хештег должен начинаться с решетки');
+    if (hashtag.length < 19) {
+      return true;
+    }
+  }, true);
+  return result;
+}, 'Максимальная длина одного хэш-тега 20 символов', 2, false);
 
-pristine.addValidator(textHashtagsElement, () => {
-  const arrayHashtags = textHashtagsElement.value.split(' ');
-  for (const hashtag of arrayHashtags) {
-    if (hashtag === '#') {
+pristine.addValidator(hashtagsText, (value) => {
+  const result = value.toLowerCase().split(' ');
+  const arr = [];
+  for (let i = 0; i < result.length; i++) {
+    if (arr.includes(result[i])) {
       return false;
     }
+    arr.push(result[i]);
   }
-  return true;
-}, 'Хештег должен содержать не только решетку');
+  return result;
+}, 'Один и тот же хэш-тег не может быть использован дважды', 2, false);
 
-pristine.addValidator(textHashtagsElement, () => {
-  const arrayHashtags = textHashtagsElement.value.split(' ');
-  for (const hashtag of arrayHashtags) {
-    if (hashtag.length > 20) {
-      return false;
-    }
-  }
-  return true;
-}, 'Хештег не должен быть длинее 20 символов');
-
-pristine.addValidator(textHashtagsElement, () => {
-  const arrayHashtags = textHashtagsElement.value.split(' ');
-  if (arrayHashtags.length > 5) {
+pristine.addValidator(hashtagsText, (value) => {
+  const result = value.split(' ');
+  if (result.length > 5) {
     return false;
   }
-  return true;
-}, 'Максимальное количество хэш-тегов 5');
+  return result;
+}, 'Нельзя указать больше пяти хэш-тегов', 2, false);
 
-pristine.addValidator(textHashtagsElement, () => {
-  const arrayHashtags = textHashtagsElement.value.split(' ');
-  for (let i = 0; i < arrayHashtags.length; i++) {
-    for (let j = i + 1; j < arrayHashtags.length; j++) {
-      if (arrayHashtags[i].toLowerCase() === arrayHashtags[j].toLowerCase() && arrayHashtags[i] !== '') {
-        return false;
-      }
+pristine.addValidator(hashtagsText, (value) => {
+  const result = value.split(' ');
+  for (let i = 0; i< result.length; i++) {
+    if (result[i].length === 1) {
+      return false;
     }
   }
-  return true;
-}, 'Один и тот же хэш-тег не может быть использован дважды');
+  return result;
+}, 'Хеш-тег не может состоять только из одной решётки;', 2, false);
 
-
-form.addEventListener('submit', (evt) => {
-  evt.preventDefault();
-
-  const isValid = pristine.validate();
-
-  if (isValid) {
-
-    const formData = new FormData(evt.target);
-
-    fetch(
-      'https://25.javascript.pages.academy/kekstagram',
-      //'https://25.javascript.pages.academy/404',
-      {
-        method: 'POST',
-        body: formData,
-      },
-    ).then((response) => {
-      if (response.ok) {
-        showAlertSuccess();
-        imgUploadOverlayElement.classList.add('hidden');
-        bodyElement.classList.remove('modal-open');
-        form.reset();
-        successElement.classList.remove('hidden');
-        closeSuccessClickButton();
-        closeSuccessClickBody();
-      } else {
-        showAlertError();
-        imgUploadOverlayElement.classList.add('hidden');
-        bodyElement.classList.remove('modal-open');
-        form.reset();
-        errorElement.classList.remove('hidden');
-        closeErrorClickBody();
-        closeErrorClickButton();
-      }
-
-    })
-      .catch(() => {
-        showAlertError();
-      });
-  }
-});
+export {closeUserForm, setUserFormSubmit};
