@@ -8,4 +8,18 @@ const getRandomPositiveInteger = (a, b) => {
 
 const getRandomArrayElement = (elements) => elements[getRandomPositiveInteger(0, elements.length - 1)];
 
-export {getRandomArrayElement, getRandomPositiveInteger};
+const showAlertError = () => {
+
+  const alertContainer = document.querySelector('#error').content.querySelector('.error');
+  document.body.append(alertContainer);
+
+};
+
+const showAlertSuccess = () => {
+
+  const alertContainer = document.querySelector('#success').content.querySelector('.success');
+  document.body.append(alertContainer);
+
+};
+
+export {getRandomArrayElement, getRandomPositiveInteger, showAlertSuccess, showAlertError};
