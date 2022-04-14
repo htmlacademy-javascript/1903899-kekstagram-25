@@ -32,7 +32,7 @@ const renderComments = ({avatar, message, name}) => {
   socialComments.append(commentsListItem);
 };
 
-const clickHandler = () => {
+const onCommentsLoaderClick = () => {
   if (commentsState.totalCountComments > commentsState.countRenderComments + commentsState.step) {
     for (let i = commentsState.countRenderComments; i < commentsState.countRenderComments + commentsState.step; i++) {
       renderComments(commentsState.comments[i]);
@@ -67,7 +67,8 @@ const generateModal = (data) => {
   socialCaption.textContent = description;
   socialComments.innerHTML = '';
 
-  commentsLoader.addEventListener('click', clickHandler);
+  onCommentsLoaderClick();
+  commentsLoader.addEventListener('click', onCommentsLoaderClick);
 
   if (commentsState.totalCountComments > commentsState.countRenderComments + commentsState.step) {
     for (let i = commentsState.countRenderComments; i < commentsState.countRenderComments + commentsState.step; i++) {
@@ -104,7 +105,7 @@ const closeUserModal = () => {
   body.classList.remove('modal-open');
 
   document.removeEventListener('keydown', onPopupEscKeydown);
-  commentsLoader.removeEventListener('click', clickHandler);
+  commentsLoader.removeEventListener('click', onCommentsLoaderClick);
 };
 
 closeButton.addEventListener('click', () => {
