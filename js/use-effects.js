@@ -3,8 +3,9 @@ const effectsItems = effectsList.querySelectorAll('.effects__item');
 const picrurePreviev = document.querySelector('.img-upload__preview img');
 const effectValue= document.querySelector('.effect-level__value');
 const effectSlider = document.querySelector('.effect-level__slider');
+const effectLevel = document.querySelector('.img-upload__effect-level');
 
-const addCheckHandler = function (effectItem) {
+const addCheckHandler = (effectItem) => {
   const effectsRadio = effectItem.querySelector('.effects__radio');
 
   effectsRadio.addEventListener('click', () =>{
@@ -23,7 +24,7 @@ noUiSlider.create(effectSlider, {
   connect: 'lower',
 });
 
-const changeheLevelEffect = function () {
+const changeheLevelEffect = () => {
 
   switch(picrurePreviev.className) {
     case 'effects__preview--chrome':
@@ -53,13 +54,15 @@ effectSlider.noUiSlider.on('update', () => {
 });
 
 
-const changeSliderRange = function (effectItem) {
+const changeSliderRange = (effectItem) => {
   const effectsRadio = effectItem.querySelector('.effects__radio');
   effectSlider.setAttribute('disabled', true);
+  effectLevel.style.display = 'none';
 
   effectsRadio.addEventListener('click', () =>{
     if (picrurePreviev.className === 'effects__preview--chrome' || picrurePreviev.className === 'effects__preview--sepia') {
       effectSlider.removeAttribute('disabled');
+      effectLevel.style.display = 'block';
       effectSlider.noUiSlider.updateOptions({
         range: {
           min: 0,
@@ -70,6 +73,7 @@ const changeSliderRange = function (effectItem) {
       });
     } else if (picrurePreviev.className === 'effects__preview--marvin') {
       effectSlider.removeAttribute('disabled');
+      effectLevel.style.display = 'block';
       effectSlider.noUiSlider.updateOptions({
         range: {
           min: 0,
@@ -80,6 +84,7 @@ const changeSliderRange = function (effectItem) {
       });
     } else if (picrurePreviev.className === 'effects__preview--heat') {
       effectSlider.removeAttribute('disabled');
+      effectLevel.style.display = 'block';
       effectSlider.noUiSlider.updateOptions({
         range: {
           min: 1,
@@ -90,6 +95,7 @@ const changeSliderRange = function (effectItem) {
       });
     } else if (picrurePreviev.className === 'effects__preview--phobos') {
       effectSlider.removeAttribute('disabled');
+      effectLevel.style.display = 'block';
       effectSlider.noUiSlider.updateOptions({
         range: {
           min: 0,
@@ -100,6 +106,7 @@ const changeSliderRange = function (effectItem) {
       });
     } else if (picrurePreviev.className === 'effects__preview--none') {
       effectSlider.setAttribute('disabled', true);
+      effectLevel.style.display = 'none';
       effectSlider.noUiSlider.updateOptions({
         range: {
           min: 0,

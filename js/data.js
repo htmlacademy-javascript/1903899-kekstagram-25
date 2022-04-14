@@ -53,7 +53,7 @@ const commentsIdCreator = () => {
 
 const getRandomIdComment = commentsIdCreator();
 
-const getRandomAvatar = function () {
+const getRandomAvatar = () => {
   const NUM_AVATAR = getRandomPositiveInteger(1, 6);
   return `img/avatar-${NUM_AVATAR}.svg`;
 };

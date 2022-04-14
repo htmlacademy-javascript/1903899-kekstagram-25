@@ -1,5 +1,4 @@
 import {body} from './big-picture';
-import {showAlert} from './util.js';
 import {isEscapeKey} from './util.js';
 
 const succesTemplate = document.querySelector('#success')
@@ -8,96 +7,71 @@ const succesTemplate = document.querySelector('#success')
 const errorTemplate = document.querySelector('#error')
   .content
   .querySelector('.error');
+const succesElement = succesTemplate.cloneNode(true);
+const successButton = succesElement.querySelector('.success__button');
+const errorElement = errorTemplate.cloneNode(true);
+const errorButton =   errorElement.querySelector('.error__button');
 
-const getData = (onSuccess) => {
+const getData = (onSuccess, onFail) => {
   fetch('https://25.javascript.pages.academy/kekstagram/data')
     .then((response) => response.json())
     .then((similarPictures) => {
       if (similarPictures.length) {
         onSuccess(similarPictures);
       } else {
-        showAlert('Нет данных!');
+        onFail('Нет данных!');
       }
     })
     .catch((err) => {
-      showAlert('Невозможно загрузить изображения!');
+      onFail('Невозможно загрузить изображения!');
+      console.error(err);
     });
 };
-const succesElement = succesTemplate.cloneNode(true);
-const successButton = succesElement.querySelector('.success__button');
 
-const onSuccessMessageEscKeydown = (evt) => {
-  if (isEscapeKey(evt) && evt.target === body) {
-    evt.preventDefault();
-    succesElement.classList.add('hidden');
-    document.removeEventListener('keydown', onSuccessMessageEscKeydown);
-  }
-};
-
-const closeSuccessMessage = function () {
-  succesElement.classList.add('hidden');
-
-  successButton.removeEventListener('click', closeSuccessMessage);
-};
-
-const onSuccessMessageClickOnRandomArea = function (evt) {
+const onMessageClickOnRandomArea = (evt) => {
   if (evt.target.className === 'success') {
     succesElement.classList.add('hidden');
   }
-};
-
-const createSuccessMessage = function () {
-  succesElement.querySelector('.success__inner');
-  succesElement.querySelector('.success__title');
-  succesElement.querySelector('.success__button');
-
-  body.appendChild(succesElement);
-
-  succesElement.classList.remove('hidden');
-  successButton.addEventListener('click', closeSuccessMessage);
-  document.addEventListener('keydown', onSuccessMessageEscKeydown);
-  document.addEventListener('click', onSuccessMessageClickOnRandomArea);
-};
-
-const errorElement = errorTemplate.cloneNode(true);
-const errorButton =   errorElement.querySelector('.error__button');
-
-
-const onErrorMessageEscKeydown = (evt) => {
-  if (isEscapeKey(evt) && evt.target === body) {
-    evt.preventDefault();
-    errorElement.classList.add('hidden');
-    document.removeEventListener('keydown', onErrorMessageEscKeydown);
-  }
-};
-
-const onErrorMessageClickOnRandomArea = function (evt) {
   if (evt.target.className === 'error') {
     errorElement.classList.add('hidden');
   }
-  document.removeEventListener('click', onErrorMessageClickOnRandomArea);
+  document.removeEventListener('click', onMessageClickOnRandomArea);
 };
 
-const closeErrorMessage = function () {
+const onMessageEscKeydown = (evt) => {
+  if (isEscapeKey(evt) && evt.target === body) {
+    evt.preventDefault();
+    succesElement.classList.add('hidden');
+    errorElement.classList.add('hidden');
+    document.removeEventListener('keydown', onMessageEscKeydown);
+  }
+};
+const closeMessage = () => {
+  succesElement.classList.add('hidden');
   errorElement.classList.add('hidden');
 
-  errorButton.removeEventListener('click', closeErrorMessage);
+  successButton.removeEventListener('click', closeMessage);
 };
 
-const createErrorMessage = function () {
-  errorElement.querySelector('.error__inner');
-  errorElement.querySelector('.error__title');
+const createSuccessMessage = () => {
+  body.appendChild(succesElement);
 
+  succesElement.classList.remove('hidden');
+  successButton.addEventListener('click', closeMessage);
+  document.addEventListener('keydown', onMessageEscKeydown);
+  document.addEventListener('click', onMessageClickOnRandomArea);
+};
+
+const createErrorMessage = () => {
   body.appendChild(errorElement);
 
   errorElement.classList.remove('hidden');
-  errorButton.addEventListener('click', closeErrorMessage);
-  document.addEventListener('keydown', onErrorMessageEscKeydown);
-  document.addEventListener('click', onErrorMessageClickOnRandomArea);
+  errorButton.addEventListener('click', closeMessage);
+  document.addEventListener('keydown', onMessageEscKeydown);
+  document.addEventListener('click', onMessageClickOnRandomArea);
 };
 
-
-const sendData = (onSuccess, onFail, FormBody) => {
+const sendData = (onSuccess, onFail, FormBody, SuccessMessage, ErrorMessage) => {
   fetch(
     'https://25.javascript.pages.academy/kekstagram',
     {
@@ -108,14 +82,15 @@ const sendData = (onSuccess, onFail, FormBody) => {
   )
     .then((response) => {
       if (response.ok) {
-        onSuccess(createSuccessMessage());
+        onSuccess(SuccessMessage());
       } else {
-        onFail(createErrorMessage());
+        onFail(ErrorMessage());
       }
     })
     .catch((err) => {
-      onFail(createErrorMessage());
+      onFail(ErrorMessage());
+      console.error(err);
     });
 };
 
-export {getData, sendData};
+export {getData, sendData, createErrorMessage, createSuccessMessage};

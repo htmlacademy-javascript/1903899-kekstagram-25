@@ -92,14 +92,14 @@ const onPopupEscKeydown = (evt) => {
   }
 };
 
-const openUserModal = function () {
+const openUserModal = () => {
   bigPicture.classList.remove('hidden');
   body.classList.add('modal-open');
 
   document.addEventListener('keydown', onPopupEscKeydown);
 };
 
-const closeUserModal = function () {
+const closeUserModal = () => {
   bigPicture.classList.add('hidden');
   body.classList.remove('modal-open');
 
