@@ -22,4 +22,4 @@ const DESCRIPTIONS = [
   'Круто провел время!',
 ];
 
-export {COMMENT_MESSAGES, NAMES, DESCRIPTIONS, };
+export {COMMENT_MESSAGES, NAMES, DESCRIPTIONS};

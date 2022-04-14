@@ -1,4 +1,4 @@
-import {generateModal, openUserModal} from './big-picture';
+import {generateModal, openUserModal} from './big-picture.js';
 import {getRandomArrayElement} from './util.js';
 import {getData} from './api.js';
 import {debounce} from './util.js';
@@ -12,6 +12,7 @@ const filters = document.querySelector('.img-filters');
 const randomButton = filters.querySelector('#filter-random');
 const discussedButton = filters.querySelector('#filter-discussed');
 const defaultButton = filters.querySelector('#filter-default');
+
 
 const RERENDER_DELAY = 500;
 
@@ -70,9 +71,7 @@ defaultButton.addEventListener('click', debounce(() => {
   randomButton.classList.remove('img-filters__button--active');
   discussedButton.classList.remove('img-filters__button--active');
 
-  getData((similarPictures) => {
-    renderSimilarListPictures(similarPictures);
-  });
+  getData(renderSimilarListPictures);
 },RERENDER_DELAY));
 
 discussedButton.addEventListener('click', debounce(() => {
