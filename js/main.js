@@ -1,8 +1,9 @@
-import './pictures';
-import './form.js';
-import './api.js';
-import {getData} from './api.js';
-import {renderSimilarListPictures} from './pictures.js';
-import {showAlert} from './util.js';
+import {
+  showGallery
+} from './gallery.js';
+import {
+  initialUpload
+} from './file-upload.js';
 
-getData(renderSimilarListPictures, showAlert);
+showGallery();
+initialUpload();

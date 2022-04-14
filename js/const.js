@@ -1,3 +1,0 @@
-const COMMENTS_COUNT = 5;
-
-export {COMMENTS_COUNT};
