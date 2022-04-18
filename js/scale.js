@@ -1,44 +1,53 @@
+import { preview as imgUploadPreview} from './upload.js';
+
+const SCALE_STEP = 25;
+
+const Scale = {
+  MIN: 25,
+  MAX: 100,
+};
+
 const imgUploadScale = document.querySelector('.img-upload__scale');
 const scaleControlSmaller = imgUploadScale.querySelector('.scale__control--smaller');
 const scaleControlBigger = imgUploadScale.querySelector('.scale__control--bigger');
 const scaleControlValue = imgUploadScale.querySelector('.scale__control--value');
-const imgUploadPreview = document.querySelector('.img-upload__preview');
 
-const SCALE_STEP = 25;
-const SCALE_MAX = 100;
-const SCALE_MIN = 25;
-
-let scale;
+let scale = Scale.MAX;
 
 const scalePreview = () => {
   scaleControlValue.value = `${scale}%`;
-  imgUploadPreview.style.transform = `scale(${scale / 100})`;
+  imgUploadPreview.style.transform = `scale(${scale / Scale.MAX})`;
 };
 
 const scaleUp = () => {
-  if (scale < SCALE_MAX) {
-    scale += SCALE_STEP;
-  }
+  scale = Math.min(scale + SCALE_STEP, Scale.MAX);
 
   scalePreview();
 };
 
 const scaleDown = () => {
-  if (scale > SCALE_MIN) {
-    scale -= SCALE_STEP;
-  }
+  scale = Math.max(scale - SCALE_STEP, Scale.MIN);
 
   scalePreview();
 };
 
-const initScaling = () => {
-  scale = SCALE_MAX;
+const initScale = () => {
+  scaleControlBigger.addEventListener('click', scaleUp);
+  scaleControlSmaller.addEventListener('click', scaleDown);
+  scale = Scale.MAX;
   scalePreview();
 };
 
-scaleControlBigger.addEventListener('click', scaleUp);
-scaleControlSmaller.addEventListener('click', scaleDown);
+const destroyScale = () => {
+  scaleControlBigger.removeEventListener('click', scaleUp);
+  scaleControlSmaller.removeEventListener('click', scaleDown);
+
+  scale = Scale.MAX;
+  scalePreview();
+};
+
 
 export {
-  initScaling
+  initScale,
+  destroyScale,
 };
