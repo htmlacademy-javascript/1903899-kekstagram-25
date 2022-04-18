@@ -1,67 +1,53 @@
-import {
-  shuffle,
-  debounce
-} from './util.js';
-import {
-  renderPictures
-} from './thumbnail.js';
-
-const imgFilters = document.querySelector('.img-filters');
-const imgFiltersForm = imgFilters.querySelector('.img-filters__form');
-const filterDefault = imgFilters.querySelector('#filter-default');
-const filterRandom = imgFilters.querySelector('#filter-random');
-const filterDiscussed = imgFilters.querySelector('#filter-discussed');
+import { shuffle, debounce} from './util.js';
+import { destroyGallery, initGallery } from './gallery.js';
 
 const RANDOM_PHOTOS_COUNT = 10;
 
-let photosFromServer;
-let chosenFilter = filterDefault;
-
-const getRandomPhotos = (photos) => {
-  const photosArrayCopy = photos.slice();
-  shuffle(photosArrayCopy);
-  return photosArrayCopy.slice(0, RANDOM_PHOTOS_COUNT);
+const Class = {
+  FILTER_INACTIVE: 'img-filters--inactive',
+  BTN_ACTIVE: 'img-filters__button--active',
 };
+
+const Filter = {
+  DEFAULT: 'default',
+  RANDOM: 'random',
+  DISCUSSED: 'discussed',
+};
+
+const filter = document.querySelector('.img-filters');
+const filterForm = filter.querySelector('.img-filters__form');
+const formButtons = filterForm.querySelectorAll('.img-filters__button');
 
 const compareCommentsNumber = (a, b) => b.comments.length - a.comments.length;
-const sortByCommentsNumber = (photos) => photos.slice().sort(compareCommentsNumber);
 
-const clearPhotos = () => {
-  const renderedPhotos = document.querySelectorAll('.picture');
-  renderedPhotos.forEach((photo) => {
-    photo.remove();
-  });
-};
+let downloadedPhotos = [];
 
-const rerenderPhotos = (evt) => {
-  clearPhotos();
-
-  if (evt.target === filterDefault) {
-    renderPictures(photosFromServer);
-  }
-  if (evt.target === filterRandom) {
-    renderPictures(getRandomPhotos(photosFromServer));
-  }
-  if (evt.target === filterDiscussed) {
-    renderPictures(sortByCommentsNumber(photosFromServer));
+const getFilteredPhotos = (photos, filterName) => {
+  switch (filterName) {
+    case Filter.RANDOM:
+      return shuffle(photos).slice(0, RANDOM_PHOTOS_COUNT);
+    case Filter.DISCUSSED:
+      return photos.slice().sort(compareCommentsNumber);
+    default:
+      return downloadedPhotos;
   }
 };
 
-const onFilterClick = debounce(rerenderPhotos);
-
-const highlightFilterButton = (evt) => {
-  chosenFilter.classList.remove('img-filters__button--active');
-  chosenFilter = evt.target;
-  chosenFilter.classList.add('img-filters__button--active');
+const onFilterClick = (evt) => {
+  if (evt.target.dataset.role && !evt.target.classList.contains(Class.BTN_ACTIVE)) {
+    formButtons.forEach((btn) => btn.classList.remove(Class.BTN_ACTIVE));
+    evt.target.classList.add(Class.BTN_ACTIVE);
+    destroyGallery();
+    initGallery(getFilteredPhotos(downloadedPhotos.slice(), evt.target.dataset.role));
+  }
 };
 
-const initialFiltering = (photos) => {
-  photosFromServer = photos;
-  imgFilters.classList.remove('img-filters--inactive');
-  imgFiltersForm.addEventListener('click', onFilterClick);
-  imgFiltersForm.addEventListener('click', highlightFilterButton);
+const initFilter = (photos) => {
+  downloadedPhotos = photos.slice();
+  filter.classList.remove(Class.FILTER_INACTIVE);
+  filterForm.addEventListener('click', debounce(onFilterClick));
 };
 
 export {
-  initialFiltering
+  initFilter
 };
