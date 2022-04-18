@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="nouislider/nouislider.css">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <title>Кекстаграм</title>
-  <script src="/js/main.js" type="module"></script>
 </head>
 
 <body>
@@ -17,9 +17,9 @@
     <section class="img-filters  img-filters--inactive  container">
       <h2 class="img-filters__title  visually-hidden">Фильтр фотографий</h2>
       <form class="img-filters__form" action="index.html" method="get" autocomplete="off">
-        <button type=button class="img-filters__button  img-filters__button--active" id="filter-default">По умолчанию</button>
-        <button type=button class="img-filters__button" id="filter-random">Случайные</button>
-        <button type=button class="img-filters__button" id="filter-discussed">Обсуждаемые</button>
+        <button type=button class="img-filters__button  img-filters__button--active" data-role="default" id="filter-default">По умолчанию</button>
+        <button type=button class="img-filters__button" data-role="random" id="filter-random">Случайные</button>
+        <button type=button class="img-filters__button" data-role="discussed" id="filter-discussed">Обсуждаемые</button>
       </form>
     </section>
 
@@ -31,11 +31,11 @@
       <section class="img-upload">
         <div class="img-upload__wrapper">
           <h2 class="img-upload__title  visually-hidden">Загрузка фотографии</h2>
-          <form class="img-upload__form" id="upload-select-image" method="post" enctype="multipart/form-data" autocomplete="off">
+          <form class="img-upload__form" id="upload-select-image" method="post" action='https://25.javascript.pages.academy/kekstagram' enctype="multipart/form-data" autocomplete="off">
 
             <!-- Изначальное состояние поля для загрузки изображения -->
             <fieldset class="img-upload__start">
-              <input type="file" id="upload-file" class="img-upload__input  visually-hidden" name="filename" required>
+              <input type="file" id="upload-file" class="img-upload__input  visually-hidden" name="filename" accept="image/png, image/jpeg" required>
               <label for="upload-file" class="img-upload__label  img-upload__control">Загрузить</label>
             </fieldset>
 
@@ -116,8 +116,13 @@
 
                 <!-- Добавление хэш-тегов и комментария к изображению -->
                 <fieldset class="img-upload__text text">
-                  <input class="text__hashtags" name="hashtags" placeholder="#ХэшТег">
-                  <textarea class="text__description" name="description" placeholder="Ваш комментарий..."></textarea>
+                  <label class="text__label">
+                  <input type="text" class="text__hashtags" name="hashtags" placeholder="#ХэшТег">
+                  </label>
+                  <label class="text__label">
+                  <textarea class="text__description" name="description" maxlength="140" placeholder="Ваш комментарий..."
+                  data-pristine-maxlength-message="Максимальная длина 140 символов"></textarea>
+                  </label>
                 </fieldset>
 
                 <!-- Кнопка для отправки данных на сервер -->
@@ -129,7 +134,6 @@
       </section>
 
       <!-- Здесь будут изображения других пользователей -->
-
     </section>
 
     <!-- Полноэкранный показ изображения -->
@@ -153,14 +157,6 @@
           <!-- Комментарии к изображению -->
           <div class="social__comment-count">5 из <span class="comments-count">125</span> комментариев</div>
           <ul class="social__comments">
-            <li class="social__comment">
-              <img class="social__picture" src="img/avatar-4.svg" alt="Аватар комментатора фотографии" width="35" height="35">
-              <p class="social__text">Мега фото! Просто обалдеть. Как вам так удалось?</p>
-            </li>
-            <li class="social__comment">
-              <img class="social__picture" src="img/avatar-3.svg" alt="Аватар комментатора фотографии" width="35" height="35">
-               <p class="social__text">Да это фоташоп!!!!!!!!</p>
-            </li>
           </ul>
 
           <!-- Кнопка для загрузки новой порции комментариев -->
@@ -175,7 +171,7 @@
         </div>
 
         <!-- Кнопка для выхода из полноэкранного просмотра изображения -->
-        <button type="reset" class="big-picture__cancel  cancel" id="picture-cancel">Закрыть</button>
+        <button type="reset" class="big-picture__cancel  cancel" id="picture-cancel" tabindex="0">Закрыть</button>
       </div>
     </section>
   </main>
@@ -230,6 +226,8 @@
   <template id="messages">
     <div class="img-upload__message  img-upload__message--loading">Загружаем...</div>
   </template>
-
+  <script src="pristine/pristine.min.js"></script>
+  <script src="nouislider/nouislider.js"></script>
+  <script src="js/main.js" type="module"></script>
 </body>
 </html>
